@@ -8,3 +8,4 @@ gray = cv2.GaussianBlur(gray, (5, 5), 0)
 edged = cv2.Canny(gray, 35, 125)
 cv2.imshow("edge", edged)
 cv2.waitKey(0)
+#HAHA
