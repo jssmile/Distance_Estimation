@@ -3,7 +3,7 @@ import numpy as np
 
 cap = cv2.VideoCapture(0)
 count = 0
-pos = 'new_calibrate/'
+pos = 'caca/'
 pic_format = '.jpg'
 
 def Snap(img):

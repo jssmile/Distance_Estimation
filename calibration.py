@@ -31,8 +31,11 @@ for fname in images:
         # Draw and display the corners
         cv2.drawChessboardCorners(img, (8,6), corners, ret)
         ret, mtx, dist, rvecs,tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
-        print(mtx)
+        print(mtx, "\n")
+        print(dist, "\n")
+        np.savez("pose/calibrate_out", ret=ret, mtx=mtx, dist=dist, rvecs=rvecs, tvecs=tvecs)
         # Draw and display the corners
         cv2.imshow('img', img)
         cv2.waitKey(500)
+np.savez("pose/out", ret=ret, mtx=mtx, dist=dist, rvecs=rvecs, tvecs=tvecs)
 cv2.destroyAllWindows()

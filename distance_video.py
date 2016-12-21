@@ -11,10 +11,13 @@ def distance_to_camera(knownWidth, focalLength, perWidth):
 KNOWN_WIDTH = 29.7
 
 #focal length of C310
-focalLength = 546.3
+focalLength = 818.09
 
-# loop over the images
+# Open the camera
 cap = cv2.VideoCapture(0)
+
+#Load the calibration file.
+data = np.load('pose/calibrate_out.npz')
 
 while(True):
     # load the image, find the marker in the image, then compute the
@@ -24,6 +27,10 @@ while(True):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (5, 5), 0)
     edged = cv2.Canny(gray, 35, 125)
+    
+    #frames per seconds
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    print("fps : ", fps)
 
     # find the contours in the edged image and keep the largest one;
     # we'll assume that this is our piece of paper in the image
@@ -35,8 +42,12 @@ while(True):
         marker = cv2.minAreaRect(c)
         box = cv2.boxPoints(marker)
         cv2.drawContours(frame, [box.astype(np.int)], -1, (0, 255, 0), 2)
-        distance = distance_to_camera(KNOWN_WIDTH, focalLength, marker[1][0])
-        print(distance," cm")
+        if marker[1][0] > marker[1][1]:
+            distance = distance_to_camera(KNOWN_WIDTH, focalLength, marker[1][0])
+        else:
+            distance = distance_to_camera(KNOWN_WIDTH, focalLength, marker[1][1])
+        #print(distance," cm")
+        print(marker[1][0],"\n\n", marker[1][1])
         cv2.putText(frame, "%.2fcm" % distance, (50, 50), cv2.FONT_HERSHEY_SIMPLEX,2.0, (0, 255, 0), 3)
     cv2.imshow("distance", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
