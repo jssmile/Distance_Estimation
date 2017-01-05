@@ -3,7 +3,7 @@ import numpy as np
 import glob
 
 # Load previously saved data
-with np.load('out.npz') as X:
+with np.load('pose/out.npz') as X:
     dist, mtx, _, rvecs , tvecs= [X[i] for i in ('dist', 'mtx', 'ret', 'rvecs','tvecs')]
 
 def draw(img, corners, imgpts):
@@ -24,7 +24,7 @@ objp[:,:2] = np.mgrid[0:8,0:6].T.reshape(-1,2)
 
 axis = np.float32([[2,0,0], [0,2,0], [2,2,0], [0,0,2]]).reshape(-1,3)
 
-for fname in glob.glob('caca/*.jpg'):
+for fname in glob.glob('calibrate/*.jpg'):
     img = cv2.imread(fname)
 
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
