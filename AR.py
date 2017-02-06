@@ -3,8 +3,13 @@ import numpy as np
 import glob
 
 # Load previously saved data
+<<<<<<< HEAD
 with np.load('out.npz') as X:
     dist, mtx, _, _ , _= [X[i] for i in ('dist', 'mtx', 'ret', 'rvecs','tvecs')]
+=======
+with np.load('pose/out.npz') as X:
+    dist, mtx, _, rvecs , tvecs= [X[i] for i in ('dist', 'mtx', 'ret', 'rvecs','tvecs')]
+>>>>>>> 170983ade639e49390716b1baf6c7cbdd0b1ccff
 
 def draw(img, corners, imgpts):
     corner = tuple(corners[0].ravel())
@@ -24,7 +29,7 @@ objp[:,:2] = np.mgrid[0:8,0:6].T.reshape(-1,2)
 
 axis = np.float32([[-1,-1,0], [1,-1,0], [1,1,0], [-1,1,0], [0,0,-2]]).reshape(-1,3)
 
-for fname in glob.glob('caca/*.jpg'):
+for fname in glob.glob('calibrate/*.jpg'):
     img = cv2.imread(fname)
 
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
@@ -41,4 +46,8 @@ for fname in glob.glob('caca/*.jpg'):
         cv2.imshow('img',img)
         cv2.imwrite('AR.jpg', img)
         cv2.waitKey(500)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 170983ade639e49390716b1baf6c7cbdd0b1ccff
 cv2.destroyAllWindows()
