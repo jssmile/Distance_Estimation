@@ -5,12 +5,11 @@ from scipy.spatial import distance as dist
 
 
 #focal length
-focal_length = 546.3
+focal_length = 818.0
 
 #car's real width(cm)
 car_width = 170.0
 
-"""
 #car pic detection
 #   Get User supplied values
 imgPath = sys.argv[2]
@@ -64,3 +63,4 @@ while(True):
 		break
 cv2.waitKey(0)
 cv2.destroyAllWindows()
+"""
