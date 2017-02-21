@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import cv2
 
 plt.rcParams['figure.figsize'] = (10, 10)
 plt.rcParams['image.interpolation'] = 'nearest'
@@ -29,7 +30,7 @@ text_format.Merge(str(file.read()), labelmap)
 focal_length = 808.5
 
 #car's real width(cm)
-car_width = 169.5
+car_width = 190.0
 
 def get_labelname(labelmap, labels):
     num_labels = len(labelmap.item)
@@ -64,9 +65,12 @@ transformer.set_channel_swap('data', (2,1,0))  # the reference model has channel
 image_resize = 300
 net.blobs['data'].reshape(1,3,image_resize,image_resize)
 
-image = caffe.io.load_image('examples/images/3.jpg')
+image = caffe.io.load_image('examples/images/0.jpg')
+#image = cv2.imread('examples/images/3.jpg')
+#cv2.imshow('frame',image)
+#cv2.imwrite('123.jpg', image)
 plt.imshow(image)
-plt.show(block=False)
+plt.show()
 transformed_image = transformer.preprocess('data', image)
 net.blobs['data'].data[...] = transformed_image
 
@@ -94,8 +98,8 @@ top_ymax = det_ymax[top_indices]
 
 colors = plt.cm.hsv(np.linspace(0, 1, 21)).tolist()
 
-plt.imshow(image)
 currentAxis = plt.gca()
+plt.imshow(image)
 
 for i in xrange(top_conf.shape[0]):
     xmin = int(round(top_xmin[i] * image.shape[1]))
@@ -116,5 +120,6 @@ for i in xrange(top_conf.shape[0]):
     	img_car_width = xmax-xmin
     	distance = (focal_length * car_width)/img_car_width
     	currentAxis.text(xmin, ymax, distance, bbox={'facecolor':color, 'alpha':0.5})
+    
+
 plt.show()
-plt.pause(0.05)

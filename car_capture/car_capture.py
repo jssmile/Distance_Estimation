@@ -10,7 +10,7 @@ fourcc = cv2.VideoWriter_fourcc(*'XVID')
 out = cv2.VideoWriter('test.avi', fourcc, 30.0, (640, 480))
 def Snap(img):
     global count
-    NAME = pos + str(count) + pic_format
+    NAME = str(count) + pic_format
     cv2.imwrite(NAME, img)
     print("Saved ", NAME )
     count += 1
