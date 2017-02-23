@@ -74,7 +74,7 @@ caffe_root = os.getcwd()
 run_soon = True
 # The video file path
 #video_file = "examples/videos/ILSVRC2015_train_00755001.mp4"
-video_file = "examples/videos/street.mp4"
+video_file = "examples/videos/driving.mp4"
 
 # The parameters for the video demo
 
