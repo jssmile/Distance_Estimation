@@ -36,10 +36,10 @@ def get_labelname(labelmap, labels):
     return labelnames
 
 # focal length
-focal_length = 808.5
+focal_length = 816
 
 # car's real width(cm)
-car_width = 190.0
+car_width = 3.5
 
 # image size
 width = 640
@@ -48,6 +48,10 @@ scale = 2
 
 # Open the webcam
 cap = cv2.VideoCapture(0)
+
+#define the codec
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+out = cv2.VideoWriter('test.avi', fourcc, 15.0, (640, 480))
 
 # load PASCAL VOC labels
 labelmap_file = 'data/VOC0712/labelmap_voc.prototxt'
@@ -103,9 +107,6 @@ while (True):
     top_xmax = det_xmax[top_indices]
     top_ymax = det_ymax[top_indices]
 
-    colors = plt.cm.hsv(np.linspace(0, 1, 21)).tolist()
-
-    currentAxis = plt.gca()
     for i in xrange(top_conf.shape[0]):
         xmin = int(round(top_xmin[i] * image.shape[1]))
         ymin = int(round(top_ymin[i] * image.shape[0]))
@@ -115,86 +116,40 @@ while (True):
         label = int(top_label_indices[i])
         label_name = top_labels[i]
 
-        image = image.astype(np.float32)*255
-        cv2.rectangle(image, (xmin,ymin), (xmax,ymax), (0, 0, 255), 2)
-        image = image.astype(np.float32)/255
-        cv2.putText(image, label_name, (xmin, ymin), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (0, 0, 255), 2)
+
+        cv2.putText(frame,
+                    label_name,
+                    (xmin, ymin),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (0, 255, 0),
+                    2)
 
         if label_name == 'car':
             img_car_width = xmax-xmin
             distance = (focal_length * car_width)/img_car_width
-            image = image.astype(np.float32)*255
-            cv2.rectangle(image, (xmin,ymin), (xmin,ymin), (0, 0, 255), 2)
-            image = image.astype(np.float32)/255
-            cv2.putText(image, label_name, (xmin, ymin), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-            cv2.putText(image, "%.2fcm" % distance, (xmax, ymax), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    
-    image = cv2.resize(image, (width*scale, height*scale))
-    cv2.imshow('frame', image)
+            cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (0, 0, 255), 2)
+            cv2.putText(frame,
+                        label_name,
+                        (xmin, ymin),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        1,
+                        (0, 255, 0),
+                        2)
+            cv2.putText(frame,
+                        "%.2fcm" % distance,
+                        (xmax, ymax),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        1,
+                        (0, 255, 0),
+                        2)
+    cv2.imshow('frame', frame)
+    out.write(np.uint8(frame))
     key = cv2.waitKey(1)
     if key & 0xFF == ord('q'):
         print("quit")
         break
 cap.release()
+out.release()
 cv2.destroyAllWindows()
-
-'''
-#image = caffe.io.load_image('examples/images/0.jpg')
-image = cv2.imread('examples/images/3.jpg')
-image = image.astype(np.float32)/256
-image = image[...,::-1]
-
-plt.imshow(image)
-plt.show()
-plt.pause(0.05)
-transformed_image = transformer.preprocess('data', image)
-net.blobs['data'].data[...] = transformed_image
-
-# Forward pass.
-detections = net.forward()['detection_out']
-
-# Parse the outputs.
-det_label = detections[0,0,:,1]
-det_conf = detections[0,0,:,2]
-det_xmin = detections[0,0,:,3]
-det_ymin = detections[0,0,:,4]
-det_xmax = detections[0,0,:,5]
-det_ymax = detections[0,0,:,6]
-
-# Get detections with confidence higher than 0.6.
-top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.6]
-
-top_conf = det_conf[top_indices]
-top_label_indices = det_label[top_indices].tolist()
-top_labels = get_labelname(labelmap, top_label_indices)
-top_xmin = det_xmin[top_indices]
-top_ymin = det_ymin[top_indices]
-top_xmax = det_xmax[top_indices]
-top_ymax = det_ymax[top_indices]
-
-colors = plt.cm.hsv(np.linspace(0, 1, 21)).tolist()
-
-currentAxis = plt.gca()
-
-for i in xrange(top_conf.shape[0]):
-    xmin = int(round(top_xmin[i] * image.shape[1]))
-    ymin = int(round(top_ymin[i] * image.shape[0]))
-    xmax = int(round(top_xmax[i] * image.shape[1]))
-    ymax = int(round(top_ymax[i] * image.shape[0]))
-    score = top_conf[i]
-    label = int(top_label_indices[i])
-    label_name = top_labels[i]
-    display_txt = '%s: %.2f'%(label_name, score)
-    coords = (xmin, ymin), xmax-xmin+1, ymax-ymin+1
-    color = colors[label]
-    currentAxis.add_patch(plt.Rectangle(*coords, fill=False, edgecolor=color, linewidth=2))
-    currentAxis.text(xmin, ymin, display_txt, bbox={'facecolor':color, 'alpha':0.5})
-    if label_name == 'car':
-    	print("X",xmax-xmin)
-    	print("Y",ymax-ymin)
-    	img_car_width = xmax-xmin
-    	distance = (focal_length * car_width)/img_car_width
-    	currentAxis.text(xmin, ymax, distance, bbox={'facecolor':color, 'alpha':0.5})
-plt.imshow(image)
-plt.show()
-'''
