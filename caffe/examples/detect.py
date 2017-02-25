@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+import datetime
 
 plt.rcParams['figure.figsize'] = (10, 10)
 plt.rcParams['image.interpolation'] = 'nearest'
@@ -46,12 +47,16 @@ width = 640
 height = 480
 scale = 2
 
+# frames counter
+cnt = 0
+counted = False
+
 # Open the webcam
 cap = cv2.VideoCapture(0)
 
 #define the codec
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter('test.avi', fourcc, 15.0, (640, 480))
+out = cv2.VideoWriter('test.avi', fourcc, 9.5, (640, 480))
 
 # load PASCAL VOC labels
 labelmap_file = 'data/VOC0712/labelmap_voc.prototxt'
@@ -79,6 +84,11 @@ net.blobs['data'].reshape(1,3,image_resize,image_resize)
 
 while (True):
     _, frame = cap.read()
+    cnt = cnt + 1
+    
+    if cnt == 1:
+        start = datetime.datetime.now()
+
     image = frame.astype(np.float32)/255
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     image = image[...,::-1]
@@ -106,6 +116,7 @@ while (True):
     top_ymin = det_ymin[top_indices]
     top_xmax = det_xmax[top_indices]
     top_ymax = det_ymax[top_indices]
+    colors = plt.cm.hsv(np.linspace(0, 1, 21)).tolist()
 
     for i in xrange(top_conf.shape[0]):
         xmin = int(round(top_xmin[i] * image.shape[1]))
@@ -116,26 +127,17 @@ while (True):
         label = int(top_label_indices[i])
         label_name = top_labels[i]
 
-        cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (0, 0, 255), 2)
-
-        cv2.putText(frame,
-                    label_name,
-                    (xmin, ymin),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    1,
-                    (0, 255, 0),
-                    2)
-
         if label_name == 'car':
             img_car_width = xmax-xmin
             distance = (focal_length * car_width)/img_car_width
-            cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (0, 0, 255), 2)
+            #color = colors[label].astype(np.float8)*255
+            cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (150,0,255), 2)
             cv2.putText(frame,
                         label_name,
                         (xmin, ymin),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         1,
-                        (0, 255, 0),
+                        (150,0,255),
                         2)
             cv2.putText(frame,
                         "%.2fcm" % distance,
@@ -144,12 +146,53 @@ while (True):
                         1,
                         (0, 255, 0),
                         2)
+        else :
+            color = colors[label]
+            cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (150,0,255), 2)
+            cv2.putText(frame,
+                    label_name,
+                    (xmin, ymin),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (150,0,255),
+                    2)
+
+    if counted:
+        cv2.putText(frame,
+                    "fps : " + str(fps),
+                    (0, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (150,0,255),
+                    2)
+
     cv2.imshow('frame', frame)
+
+    # count 60 frames and calculated the frames per seconds(fps) 
+    if cnt == 60:
+        end = datetime.datetime.now()
+        period = end - start
+        fps = 60 / (period.total_seconds())
+        cv2.putText(frame,
+                    str(fps),
+                    (0, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (150,0,255),
+                    2)
+        cnt = 0
+        counted = True
+    
+    # Save the images as a video file
     out.write(np.uint8(frame))
+
+    # Press 'q' to stop the program
     key = cv2.waitKey(1)
     if key & 0xFF == ord('q'):
         print("quit")
         break
+
+# Clear the buffer
 cap.release()
 out.release()
 cv2.destroyAllWindows()
