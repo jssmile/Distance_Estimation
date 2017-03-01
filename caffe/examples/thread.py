@@ -1,12 +1,12 @@
-import multiprocessing
+import caffe
 import cv2
-import sys
-import numpy as np
 import datetime
 import time
+import multiprocessing
+import numpy as np
 import os
+import socket
 import sys
-import caffe
 from google.protobuf import text_format
 from caffe.proto import caffe_pb2
 
@@ -32,6 +32,12 @@ scale = 2
 # frames counter
 cnt = 0
 fps = 0
+
+#Socket setting
+TCP_IP = '140.116.164.7'
+TCP_PORT = 5001
+sock = socket.socket()
+sock.connect((TCP_IP, TCP_PORT))
 
 # load PASCAL VOC labels
 labelmap_file = 'data/VOC0712/labelmap_voc.prototxt'
@@ -76,16 +82,20 @@ def show_loop(the_q):
 	while (True):
 		image = the_q.get()
 		if image is None:	break
+		encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
+		result, imgencode = cv2.imencode('.jpg', image, encode_param)
+		data = np.array(imgencode)
+		stringData = data.tostring()
 
+		sock.send(str(len(stringData)).ljust(16))
+		sock.send(stringData)
 		cv2.imshow('image_display', image)
 		cv2.waitKey(1)
 		continue
 
 		if the_q.get() == None:
 			continue
-		else:
-			image = the_q.get()
-			cv2.imshow('image_display', image)
+		
 
 def main():
 
