@@ -111,7 +111,7 @@ def show_object(frame, label_name, real_width, x_max, x_min, y_max, y_min):
                 1,
                 (0, 255, 0),
                 2)
-	return frame
+	return np.uint8(frame)
 
 def show_loop(the_q):
 
