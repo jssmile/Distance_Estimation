@@ -7,6 +7,7 @@ import numpy as np
 import os
 import socket
 import sys
+import Queue
 from google.protobuf import text_format
 from caffe.proto import caffe_pb2
 
@@ -22,7 +23,7 @@ caffe.set_mode_gpu()
 focal_length = 816
 
 # car's real width(cm)
-car_width = 3.5
+car_width = 180
 
 # image size
 width = 640
@@ -33,11 +34,23 @@ scale = 2
 cnt = 0
 fps = 0
 
-#Socket setting
+# Socket setting
+connect = None
 TCP_IP = '140.116.164.7'
 TCP_PORT = 5001
-sock = socket.socket()
-sock.connect((TCP_IP, TCP_PORT))
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.settimeout(3.0)
+
+try:
+	client.connect((TCP_IP, TCP_PORT))
+except socket.error:
+	print("Connect fail!")
+	connect = False
+else:
+	print("Connect Success!")
+	connect = True
+finally:
+	pass
 
 # load PASCAL VOC labels
 labelmap_file = 'data/VOC0712/labelmap_voc.prototxt'
@@ -79,28 +92,45 @@ def get_labelname(labelmap, labels):
     return labelnames
 
 def show_loop(the_q):
+
+	global cnt, fps, connect
+
 	while (True):
 		image = the_q.get()
 		if image is None:	break
-		encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
-		result, imgencode = cv2.imencode('.jpg', image, encode_param)
-		data = np.array(imgencode)
-		stringData = data.tostring()
+		cnt += 1
 
-		sock.send(str(len(stringData)).ljust(16))
-		sock.send(stringData)
+		if cnt == 1:
+			start = datetime.datetime.now()
+		# count 10 frames and calculated the frames per seconds(fps) 
+		if cnt == 10:
+			end = datetime.datetime.now()
+			fps = 10 / ((end-start).total_seconds())
+			cnt = 0
+		cv2.putText(image,
+                "fps : %f"%fps,
+                (0, 30),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (150,0,255),
+                2)
+		if connect == True:
+			encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 20] # quality from 0 - 100, higher means bigger size
+			_, imgencode = cv2.imencode('.jpg', image, encode_param)
+			data = np.array(imgencode)
+			stringData = data.tostring()
+
+			client.send(str(len(stringData)).ljust(16))
+			client.send(stringData)
 		cv2.imshow('image_display', image)
+		if cv2.waitKey(1) & 0xFF == ord('q'):
+			print("fuck")
+
 		cv2.waitKey(1)
 		continue
 
-		if the_q.get() == None:
-			continue
-		
-
 def main():
 
-	global cnt, fps
-	
 	# Open the webcam
 	cap = cv2.VideoCapture(0)
 
@@ -115,23 +145,6 @@ def main():
 	while(True):
 		_, frame = cap.read()
 
-		cnt = cnt + 1
-
-		if cnt == 1:
-			start = datetime.datetime.now()
-		# count 10 frames and calculated the frames per seconds(fps) 
-		if cnt == 10:
-			end = datetime.datetime.now()
-			fps = 10 / ((end-start).total_seconds())
-			cnt = 0
-		cv2.putText(frame,
-                "fps : %f"%fps,
-                (0, 30),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1,
-                (150,0,255),
-                2)
-
 		image = frame.astype(np.float32)/255
 		image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 		image = image[...,::-1]
@@ -143,11 +156,11 @@ def main():
 
 		# Parse the output
 		det_label = detections[0,0,:,1]
-		det_conf = detections[0,0,:,2]
-		det_xmin = detections[0,0,:,3]
-		det_ymin = detections[0,0,:,4]
-		det_xmax = detections[0,0,:,5]
-		det_ymax = detections[0,0,:,6]
+		det_conf  = detections[0,0,:,2]
+		det_xmin  = detections[0,0,:,3]
+		det_ymin  = detections[0,0,:,4]
+		det_xmax  = detections[0,0,:,5]
+		det_ymax  = detections[0,0,:,6]
 
 		# Get detections with confidence higher than 0.6.
 		top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.6]
