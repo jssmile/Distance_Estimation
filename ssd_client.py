@@ -93,6 +93,25 @@ def get_labelname(labelmap, labels):
                 break
         assert found == True
     return labelnames
+def show_object(frame, label_name, real_width, x_max, x_min, y_max, y_min):
+	img_width = x_max-x_min
+	distance = (focal_length * real_width)/img_width
+	cv2.rectangle(frame, (x_min,y_min), (x_max,y_max), (150,0,255), 2)
+	cv2.putText(frame,
+                label_name,
+                (x_min, y_min),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (150,0,255),
+                2)
+	cv2.putText(frame,
+                "%.2fcm" % distance,
+                (x_max, y_max),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 255, 0),
+                2)
+	return frame
 
 def show_loop(the_q):
 
@@ -186,80 +205,17 @@ def main():
 			label_name = top_labels[i]
 
 			if label_name == 'car':
-				img_car_width = xmax-xmin
-				distance = (focal_length * car_width)/img_car_width
-				cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (150,0,255), 2)
-				cv2.putText(frame,
-                        label_name,
-                        (xmin, ymin),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1,
-                        (150,0,255),
-                        2)
-				cv2.putText(frame,
-                        "%.2fcm" % distance,
-                        (xmax, ymax),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1,
-                        (0, 255, 0),
-                        2)
+				show_object(frame, label_name, car_width, xmax, xmin, ymax, ymin)
 			
 			if label_name == 'person':
-				img_person_width = xmax-xmin
-				distance = (focal_length * person_width)/img_person_width
-				cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (150,0,255), 2)
-				cv2.putText(frame,
-                        label_name,
-                        (xmin, ymin),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1,
-                        (150,0,255),
-                        2)
-				cv2.putText(frame,
-                        "%.2fcm" % distance,
-                        (xmax, ymax),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1,
-                        (0, 255, 0),
-                        2)
+				show_object(frame, label_name, person_width, xmax, xmin, ymax, ymin)
 
 			if label_name == 'motorbike':
-				img_motorbike_width = xmax-xmin
-				distance = (focal_length * motorbike_width)/img_motorbike_width
-				cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (150,0,255), 2)
-				cv2.putText(frame,
-                        label_name,
-                        (xmin, ymin),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1,
-                        (150,0,255),
-                        2)
-				cv2.putText(frame,
-                        "%.2fcm" % distance,
-                        (xmax, ymax),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1,
-                        (0, 255, 0),
-                        2)
-			
+				show_object(frame, label_name, motorbike_width, xmax, xmin, ymax, ymin)			
+
 			if label_name == 'bus':
-				img_bus_width = xmax-xmin
-				distance = (focal_length * bus_width)/img_bus_width
-				cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (150,0,255), 2)
-				cv2.putText(frame,
-                        label_name,
-                        (xmin, ymin),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1,
-                        (150,0,255),
-                        2)
-				cv2.putText(frame,
-                        "%.2fcm" % distance,
-                        (xmax, ymax),
-                        cv2.FONT_HERSHEY_SIMPLEX,
-                        1,
-                        (0, 255, 0),
-                        2)
+				show_object(frame, label_name, bus_width, xmax, xmin, ymax, ymin)
+
 			else :
 				cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (150,0,255), 2)
 				cv2.putText(frame,
