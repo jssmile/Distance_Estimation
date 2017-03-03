@@ -136,7 +136,7 @@ def show_loop(the_q):
                 1,
                 (150,0,255),
                 2)
-		encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 20] # quality from 0 - 100, higher means bigger size
+		encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50] # quality from 0 - 100, higher means bigger size
 		_, imgencode = cv2.imencode('.jpg', image, encode_param)
 		data_send = np.array(imgencode)
 		stringData_send = data_send.tostring()
