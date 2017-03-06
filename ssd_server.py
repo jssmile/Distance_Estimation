@@ -20,13 +20,13 @@ caffe.set_device(0)
 caffe.set_mode_gpu()
 
 # focal length
-focal_length = 816
+focal_length = 816.0
 
 # real width of obstacle(cm)
 car_width = 180
 bus_width = 230
 motorbike_width = 70
-person_width = 65
+person_width = 53
 
 # image size
 width = 640
@@ -41,6 +41,7 @@ fps = 0
 TCP_IP = '140.116.164.8'
 TCP_PORT = 5001
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server.bind((TCP_IP, TCP_PORT))
 server.listen(True)
 conn, addr = server.accept()
@@ -130,7 +131,7 @@ def show_loop(the_q):
 			fps = 10 / ((end-start).total_seconds())
 			cnt = 0
 		cv2.putText(image,
-                "dame : %f"%fps,
+                "fps : %f"%fps,
                 (0, 30),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 1,
@@ -235,5 +236,6 @@ if __name__ == '__main__':
 # Release the buffer
 the_q.put(None)
 show_process.join()
+server.close()
 out.release()
 cv2.DestroyAllWindows()
