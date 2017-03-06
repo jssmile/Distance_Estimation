@@ -117,6 +117,8 @@ def show_object(frame, label_name, real_width, x_max, x_min, y_max, y_min):
 def show_loop(the_q):
 
 	global cnt, fps, connect
+	cv2.namedWindow('image_display', cv2.WND_PROP_FULLSCREEN)
+	cv2.setWindowProperty('image_display', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)		
 
 	while (True):
 		image = the_q.get()
@@ -145,8 +147,6 @@ def show_loop(the_q):
 		conn.send(str(len(stringData_send)).ljust(16))
 		conn.send(stringData_send)
 		
-		cv2.namedWindow('image_display', cv2.WND_PROP_FULLSCREEN)
-		cv2.setWindowProperty('image_display', cv2.WND_PROP_FULLSCREEN, cv2.WND_PROP_FULLSCREEN)		
 		cv2.imshow('image_display', image)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			print("fuck")

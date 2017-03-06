@@ -4,6 +4,9 @@ import datetime
 cap = cv2.VideoCapture(0)
 cnt = 0
 fps = 0
+cv2.namedWindow("frame", cv2.WND_PROP_FULLSCREEN)
+cv2.setWindowProperty("frame", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
 while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
@@ -23,11 +26,11 @@ while(True):
     #cv2.imwrite("capture.png", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-    if cnt == 60:
+    if cnt == 10:
     	end = datetime.datetime.now()
     	period = end - start
     	period = period.total_seconds()
-    	fps = 60 / period
+    	fps = 10 / period
     	print(str(fps))
     	cnt = 0
     	cv2.putText(frame,
