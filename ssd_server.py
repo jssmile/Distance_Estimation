@@ -145,6 +145,8 @@ def show_loop(the_q):
 		conn.send(str(len(stringData_send)).ljust(16))
 		conn.send(stringData_send)
 		
+		cv2.namedWindow('image_display', cv2.WND_PROP_FULLSCREEN)
+		cv2.setWindowProperty('image_display', cv2.WND_PROP_FULLSCREEN, cv2.WND_PROP_FULLSCREEN)		
 		cv2.imshow('image_display', image)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			print("fuck")

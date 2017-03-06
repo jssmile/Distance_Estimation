@@ -35,6 +35,8 @@ while (True):
 	data_recv = numpy.fromstring(stringData_recv, dtype='uint8')
 
 	frame_recv = cv2.imdecode(data_recv, 1)
+	cv2.namedWindow("ssd", cv2.WND_PROP_FULLSCREEN)
+	cv2.setWindowProperty("ssd", cv2.WND_PROP_FULLSCREEN, cv2.WND_PROP_FULLSCREEN)
 	cv2.imshow("ssd", frame_recv)
 	cv2.waitKey(1)
 
