@@ -44,8 +44,9 @@ server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server.bind((TCP_IP, TCP_PORT))
 server.listen(True)
+print("Listening")
 conn, addr = server.accept()
-
+print("Connected!!!")
 # load PASCAL VOC labels
 labelmap_file = 'data/VOC0712/labelmap_voc.prototxt'
 file = open(labelmap_file, 'r')
@@ -139,7 +140,7 @@ def show_loop(the_q):
                 1,
                 (150,0,255),
                 2)
-		encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50] # quality from 0 - 100, higher means bigger size
+		encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90] # quality from 0 - 100, higher means bigger size
 		_, imgencode = cv2.imencode('.jpg', image, encode_param)
 		data_send = np.array(imgencode)
 		stringData_send = data_send.tostring()
