@@ -3,15 +3,6 @@ import numpy
 import time
 import cv2
 
-def recvall(sock, count):
-    buf = b''
-    while count:
-        newbuf = sock.recv(count)
-        if not newbuf: return None
-        buf += newbuf
-        count -= len(newbuf)
-    return buf
-
 UDP_IP = "140.116.164.8"
 UDP_PORT = 5005
 
@@ -22,13 +13,18 @@ s=""
 
 while True:
 
-    length = recvall(conn,16)
-	stringData = recvall(conn, int(length))
-	data = numpy.fromstring(stringData, dtype='uint8')
+    data, addr = sock.recvfrom(46080)
 
-	decimg=cv2.imdecode(data,1)
-	cv2.imshow('SERVER', decimg)
-	cv2.waitKey(1)
+    s += data
+
+    if len(s) == (46080*20):
+
+        frame = numpy.fromstring (s,dtype=numpy.uint8)
+        frame = frame.reshape (480,640,3)
+
+        cv2.imshow('frame',frame)
+
+        s=""
 
     if cv2.waitKey(1) & 0xFF == ord ('q'):
         break

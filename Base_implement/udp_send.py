@@ -2,16 +2,7 @@ import numpy as np
 import cv2
 import socket
 
-def recvall(sock, count):
-    buf = b''
-    while count:
-        newbuf = sock.recv(count)
-        if not newbuf: return None
-        buf += newbuf
-        count -= len(newbuf)
-    return buf
-
-UDP_IP = "127.0.0.1"
+UDP_IP = "140.116.164.8"
 UDP_PORT = 5005
 
 cap = cv2.VideoCapture(0)
@@ -19,14 +10,20 @@ cap = cv2.VideoCapture(0)
 while(True):
     ret, frame = cap.read()
 
-    encode_param=[int(cv2.IMWRITE_JPEG_QUALITY),30]
-	_, imgencode = cv2.imencode('.jpg', frame, encode_param)
-	data_send = numpy.array(imgencode)
-	stringData_send = data_send.tostring()
+    cv2.imshow('frame',frame)
 
-	sock.send(str(len(stringData_send)).ljust(16));
-	sock.send(stringData_send);
-	
+
+    sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+
+    d = frame.flatten ()
+    s = d.tostring ()
+
+
+
+    for i in xrange(20):
+
+        sock.sendto (s[i*46080:(i+1)*46080],(UDP_IP, UDP_PORT))
+
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
