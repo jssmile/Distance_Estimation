@@ -4,8 +4,8 @@ class App:
     frame = Frame(master)
     frame.pack()
 
-    self.label_1 = Label(frame, text="Username")
-    self.label_2 = Label(frame, text="Password")
+    self.label_1 = Label(frame, text="IP_address")
+    self.label_2 = Label(frame, text="Port")
     self.label_1.grid(row=0, sticky=E)
     self.label_2.grid(row=1, sticky=E)
 
