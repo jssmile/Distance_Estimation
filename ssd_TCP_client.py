@@ -23,7 +23,9 @@ class App:
     self.label_2.grid(row=1, sticky=E)
 
     self.entry_1 = Entry(frame)
+    self.entry_1.insert(END, '140.116.164.8')
     self.entry_2 = Entry(frame)
+    self.entry_2.insert(END, '5001')
     self.entry_1.grid(row=0, column=1)
     self.entry_2.grid(row=1, column=1)
 
