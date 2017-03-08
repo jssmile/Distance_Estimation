@@ -8,8 +8,9 @@ import os
 import socket
 import sys
 import Queue
-from google.protobuf import text_format
 from caffe.proto import caffe_pb2
+from google.protobuf import text_format
+from Tkinter import *
 
 
 # Make sure that caffe is on the python path:
@@ -38,8 +39,39 @@ cnt = 0
 fps = 0
 
 # Socket setting
-TCP_IP = '140.116.164.8'
-TCP_PORT = 5001
+class App:
+  def __init__(self, master):
+    frame = Frame(master)
+    frame.pack()
+
+    self.label_1 = Label(frame, text="IP_address")
+    self.label_2 = Label(frame, text="Port")
+    self.label_1.grid(row=0, sticky=E)
+    self.label_2.grid(row=1, sticky=E)
+
+    self.entry_1 = Entry(frame)
+    self.entry_2 = Entry(frame)
+    self.entry_1.grid(row=0, column=1)
+    self.entry_2.grid(row=1, column=1)
+
+    self.Connect_btn = Button(frame, text ="Connect", command = self.write_slogan)
+    self.Connect_btn.grid(row=3, column=0)
+    self.Cancel_btn = Button(frame, 
+                         text="Exit", fg="red",
+                         command=quit)
+    self.Cancel_btn.grid(row=3, column = 1)
+  def write_slogan(self):
+    ip_add = self.entry_1.get()
+    port = self.entry_2.get()
+    print(ip_add, port)
+    root.quit()
+
+root = Tk()
+app = App(root)
+root.mainloop()
+
+TCP_IP = app.entry_1.get()
+TCP_PORT = int(app.entry_2.get())
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server.bind((TCP_IP, TCP_PORT))
