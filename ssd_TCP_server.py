@@ -152,8 +152,13 @@ def show_object(frame, label_name, real_width, x_max, x_min, y_max, y_min):
 def show_loop(the_q):
 
 	global cnt, fps, connect
+	#	define the codec
+	fourcc = cv2.VideoWriter_fourcc(*'XVID')
+	out = cv2.VideoWriter('test.avi', fourcc, 15, (640, 480))
+	
+	#	define the frame size to full screen
 	cv2.namedWindow('image_display', cv2.WND_PROP_FULLSCREEN)
-	cv2.setWindowProperty('image_display', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)		
+	cv2.setWindowProperty('image_display', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)	
 
 	while (True):
 		image = the_q.get()
@@ -193,10 +198,6 @@ def show_loop(the_q):
 
 def main():
 
-	#define the codec
-	fourcc = cv2.VideoWriter_fourcc(*'XVID')
-	out = cv2.VideoWriter('test.avi', fourcc, 15, (640, 480))
-	
 	the_q = multiprocessing.Queue()
 	show_process = multiprocessing.Process(target=show_loop,args=(the_q, ))
 	show_process.start()
