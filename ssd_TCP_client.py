@@ -3,6 +3,10 @@ import socket
 import cv2
 import numpy
 
+# TCP ip and port
+TCP_IP = None
+TCP_PORT = None
+
 def recvall(sock, count):
     buf = b''
     while count:
@@ -36,17 +40,15 @@ class App:
                          command=quit)
     self.Cancel_btn.grid(row=3, column = 1)
   def write_slogan(self):
-    ip_add = self.entry_1.get()
-    port = self.entry_2.get()
-    print(ip_add, port)
-    root.quit()
+    global TCP_IP, TCP_PORT
+    TCP_IP = self.entry_1.get()
+    TCP_PORT = int(self.entry_2.get())
+    print(TCP_IP, TCP_PORT)
+    root.destroy()
 
 root = Tk()
 app = App(root)
 root.mainloop()
-
-TCP_IP = app.entry_1.get()
-TCP_PORT = int(app.entry_2.get())
 
 sock = socket.socket()
 sock.connect((TCP_IP, TCP_PORT))
