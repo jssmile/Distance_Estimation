@@ -59,7 +59,7 @@ cv2.setWindowProperty("ssd", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 while (True):
 	_, frame = capture.read()
 
-	encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
+	encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50]
 	_, imgencode = cv2.imencode('.jpg', frame, encode_param)
 	data_send = numpy.array(imgencode)
 	stringData_send = data_send.tostring()
