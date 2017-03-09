@@ -108,6 +108,9 @@ transformer.set_channel_swap('data', (2,1,0))           # the reference model ha
 image_resize = 300
 net.blobs['data'].reshape(1, 3, image_resize, image_resize)	
 
+def Nothing():
+	pass
+
 def recvall(sock, count):
 	buf = b''
 	while count:
@@ -161,7 +164,8 @@ def show_loop(the_q):
 	
 	#	define the frame size to full screen
 	cv2.namedWindow('image_display', cv2.WND_PROP_FULLSCREEN)
-	cv2.setWindowProperty('image_display', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)	
+	cv2.setWindowProperty('image_display', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+	cv2.createTrackbar('Quality', 'image_display', 50, 100, Nothing)
 
 	while (True):
 		image = the_q.get()
@@ -182,7 +186,8 @@ def show_loop(the_q):
                 1,
                 (150,0,255),
                 2)
-		encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50] # quality from 0 - 100, higher means bigger size
+		quality = cv2.getTrackbarPos('Quality', 'image_display')
+		encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality] # quality from 0 - 100, higher means bigger size
 		_, imgencode = cv2.imencode('.jpg', image, encode_param)
 		data_send = np.array(imgencode)
 		stringData_send = data_send.tostring()

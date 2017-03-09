@@ -7,6 +7,10 @@ import numpy
 TCP_IP = None
 TCP_PORT = None
 
+def Nothing():
+	pass
+
+# Receive the image package
 def recvall(sock, count):
     buf = b''
     while count:
@@ -16,6 +20,7 @@ def recvall(sock, count):
         count -= len(newbuf)
     return buf
 
+# The login interface
 class App:
   def __init__(self, master):
     frame = Frame(master)
@@ -57,11 +62,13 @@ capture = cv2.VideoCapture(0)
 
 cv2.namedWindow("ssd", cv2.WND_PROP_FULLSCREEN)
 cv2.setWindowProperty("ssd", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+cv2.createTrackbar('Quality', 'ssd', 50, 100, Nothing)
 
 while (True):
 	_, frame = capture.read()
 
-	encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 50]
+	quality = cv2.getTrackbarPos('Quality', 'ssd')
+	encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
 	_, imgencode = cv2.imencode('.jpg', frame, encode_param)
 	data_send = numpy.array(imgencode)
 	stringData_send = data_send.tostring()
