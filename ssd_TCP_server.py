@@ -30,25 +30,16 @@ bus_width = 230
 motorbike_width = 70
 person_width = 53
 
-# image size
-width = 640
-height = 480
-scale = 2
-
-# frames counter
-cnt = 0
-fps = 0
-
 # TCP ip and port
-TCP_IP = None
-TCP_PORT = None
+TCP_IP = None 
+TCP_PORT = None 
 
 # flag for terminating
 EXIT = False
 pickle.dump(EXIT, open("exit_server.txt", "w"))
 
 # Login GUI
-class App:
+class Login:
   def __init__(self, master):
     frame = Frame(master)
     frame.pack()
@@ -67,10 +58,9 @@ class App:
 
     self.Connect_btn = Button(frame, text ="Connect", command = self.write_slogan)
     self.Connect_btn.grid(row=3, column=0)
-    self.Cancel_btn = Button(frame, 
-                         text="Exit", fg="red",
-                         command=quit)
+    self.Cancel_btn = Button(frame, text="Exit", fg="red", command=quit)
     self.Cancel_btn.grid(row=3, column = 1)
+  
   def write_slogan(self):
     global TCP_IP, TCP_PORT
     TCP_IP = self.entry_1.get()
@@ -80,45 +70,23 @@ class App:
 
 root = Tk()
 root.wm_title("Server")
-app = App(root)
+app = Login(root)
 root.mainloop()
 
-# Socket setting
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-server.bind((TCP_IP, TCP_PORT))
-server.listen(True)
-print("Listening")
-conn, addr = server.accept()
-print("Connected!!!")
-
-# load PASCAL VOC labels
-labelmap_file = 'data/VOC0712/labelmap_voc.prototxt'
-file = open(labelmap_file, 'r')
-labelmap = caffe_pb2.LabelMap()
-text_format.Merge(str(file.read()), labelmap)
-
-model_def = 'models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt'
-model_weights = 'models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_120000.caffemodel'
-
-net = caffe.Net(model_def,      # defines the structure of the model
-                model_weights,  # contains the trained weights
-                caffe.TEST)     # use test mode (e.g., don't perform dropout)
-
-# input preprocessing: 'data' is the name of the input blob == net.inputs[0]
-transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
-transformer.set_transpose('data', (2, 0, 1))
-transformer.set_mean('data', np.array([104,117,123]))   # mean pixel
-transformer.set_raw_scale('data', 255)                  # the reference model operates on images in [0,255] range instead of [0,1]
-transformer.set_channel_swap('data', (2,1,0))           # the reference model has channels in BGR order instead of RGB
-
-# set net to batch size of 1
-image_resize = 300
-net.blobs['data'].reshape(1, 3, image_resize, image_resize)	
-
 # pass function
-def Nothing():
+def nothing():
 	pass
+
+# Socket setting
+def connection():
+	server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+	server.bind((TCP_IP, TCP_PORT))
+	server.listen(True)
+	print("Listening")
+	conn, addr = server.accept()
+	print("Connected!!!")
+	return conn, addr
 
 # Receive the socket data
 def recvall(sock, count):
@@ -167,18 +135,49 @@ def show_object(frame, label_name, real_width, x_max, x_min, y_max, y_min):
                 2)
 	return np.uint8(frame)
 
+# Load pre-trained SSD model
+def load_model():
+	# load PASCAL VOC labels
+	labelmap_file = 'data/VOC0712/labelmap_voc.prototxt'
+	file = open(labelmap_file, 'r')
+	labelmap = caffe_pb2.LabelMap()
+	text_format.Merge(str(file.read()), labelmap)
+
+	model_def = 'models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt'
+	model_weights = 'models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_120000.caffemodel'
+
+	net = caffe.Net(model_def,      # defines the structure of the model
+                	model_weights,  # contains the trained weights
+                	caffe.TEST)     # use test mode (e.g., don't perform dropout)
+
+	# input preprocessing: 'data' is the name of the input blob == net.inputs[0]
+	transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
+	transformer.set_transpose('data', (2, 0, 1))
+	transformer.set_mean('data', np.array([104,117,123]))   # mean pixel
+	transformer.set_raw_scale('data', 255)                  # the reference model operates on images in [0,255] range instead of [0,1]
+	transformer.set_channel_swap('data', (2,1,0))           # the reference model has channels in BGR order instead of RGB
+
+	# set net to batch size of 1
+	image_resize = 300
+	net.blobs['data'].reshape(1, 3, image_resize, image_resize)
+	return net, transformer, labelmap
+
 # Continuous showing the frame from main loop
 def show_loop(the_q):
 
-	global cnt, fps, connect, EXIT
-	#	define the codec
+	global EXIT
+	# define the codec
 	fourcc = cv2.VideoWriter_fourcc(*'XVID')
 	out = cv2.VideoWriter('test.avi', fourcc, 15, (640, 480))
 	
-	#	define the frame size to full screen
+	# define the frame size to full screen
 	cv2.namedWindow('image_display', cv2.WND_PROP_FULLSCREEN)
 	cv2.setWindowProperty('image_display', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
-	cv2.createTrackbar('Quality', 'image_display', 50, 100, Nothing)
+	cv2.createTrackbar('Quality', 'image_display', 50, 100, nothing)
+
+	# frames counter
+	fps = 0
+	cnt = 0
 
 	while (True):
 		image = the_q.get()
@@ -211,14 +210,15 @@ def show_loop(the_q):
 		# Save the images as a video file
 		out.write(np.uint8(image))
 		cv2.imshow('image_display', image)
+
+		# if press 'q' then exit the program
 		if cv2.waitKey(1) & 0xFF == ord('q'):
-			print("fuck")
+			print("Exit the program")
 			EXIT = True
 			pickle.dump(EXIT, open("exit_server.txt", "w"))
 			os.exit()
 
 		cv2.waitKey(1)
-		continue
 
 # Detected the object and computing the distance
 def main():
@@ -294,15 +294,18 @@ def main():
                     (150,0,255),
                     2)
 		Leaving = pickle.load(open("exit_server.txt", "r"))
-		if Leaving == True:
+		if Leaving:
 			os.exit()
 		the_q.put(frame)
+
 if __name__ == '__main__':
+	conn, addr = connection()
+	net, transformer, labelmap = load_model()
 	main()
 
-# Release the buffer
-the_q.put(None)
-show_process.join()
-server.close()
-out.release()
-cv2.DestroyAllWindows()
+	# Release the buffer
+	the_q.put(None)
+	show_process.join()
+	server.close()
+	out.release()
+	cv2.DestroyAllWindows()
