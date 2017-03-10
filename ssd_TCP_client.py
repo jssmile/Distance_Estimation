@@ -85,6 +85,8 @@ while (True):
 	
 	cv2.imshow("ssd", frame_recv)
 	cv2.waitKey(1)
+	if cv2.waitKey(1) & 0xFF == ord('q'):
+		os.exit()
 
 sock.close()
 cv2.destroyAllWindows()

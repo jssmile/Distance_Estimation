@@ -5,6 +5,7 @@ import time
 import multiprocessing
 import numpy as np
 import os
+import pickle
 import socket
 import sys
 import Queue
@@ -42,6 +43,10 @@ fps = 0
 TCP_IP = None
 TCP_PORT = None
 
+# flag for terminating
+EXIT = False
+pickle.dump(EXIT, open("exit_server.txt", "w"))
+
 # Login GUI
 class App:
   def __init__(self, master):
@@ -74,7 +79,7 @@ class App:
     root.destroy()
 
 root = Tk()
-root.wm_title("Client")
+root.wm_title("Server")
 app = App(root)
 root.mainloop()
 
@@ -165,7 +170,7 @@ def show_object(frame, label_name, real_width, x_max, x_min, y_max, y_min):
 # Continuous showing the frame from main loop
 def show_loop(the_q):
 
-	global cnt, fps, connect
+	global cnt, fps, connect, EXIT
 	#	define the codec
 	fourcc = cv2.VideoWriter_fourcc(*'XVID')
 	out = cv2.VideoWriter('test.avi', fourcc, 15, (640, 480))
@@ -208,7 +213,9 @@ def show_loop(the_q):
 		cv2.imshow('image_display', image)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			print("fuck")
-			os._exit()
+			EXIT = True
+			pickle.dump(EXIT, open("exit_server.txt", "w"))
+			os.exit()
 
 		cv2.waitKey(1)
 		continue
@@ -286,6 +293,9 @@ def main():
                     1,
                     (150,0,255),
                     2)
+		Leaving = pickle.load(open("exit_server.txt", "r"))
+		if Leaving == True:
+			os.exit()
 		the_q.put(frame)
 if __name__ == '__main__':
 	main()
