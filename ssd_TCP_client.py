@@ -52,6 +52,7 @@ class App:
     root.destroy()
 
 root = Tk()
+root.wm_title("Client")
 app = App(root)
 root.mainloop()
 

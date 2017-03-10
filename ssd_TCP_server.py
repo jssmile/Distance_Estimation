@@ -42,7 +42,7 @@ fps = 0
 TCP_IP = None
 TCP_PORT = None
 
-# Socket setting
+# Login GUI
 class App:
   def __init__(self, master):
     frame = Frame(master)
@@ -74,9 +74,11 @@ class App:
     root.destroy()
 
 root = Tk()
+root.wm_title("Client")
 app = App(root)
 root.mainloop()
 
+# Socket setting
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server.bind((TCP_IP, TCP_PORT))
@@ -84,6 +86,7 @@ server.listen(True)
 print("Listening")
 conn, addr = server.accept()
 print("Connected!!!")
+
 # load PASCAL VOC labels
 labelmap_file = 'data/VOC0712/labelmap_voc.prototxt'
 file = open(labelmap_file, 'r')
@@ -108,9 +111,11 @@ transformer.set_channel_swap('data', (2,1,0))           # the reference model ha
 image_resize = 300
 net.blobs['data'].reshape(1, 3, image_resize, image_resize)	
 
+# pass function
 def Nothing():
 	pass
 
+# Receive the socket data
 def recvall(sock, count):
 	buf = b''
 	while count:
@@ -120,6 +125,7 @@ def recvall(sock, count):
 		count -= len(newbuf)
 	return buf
 
+# get the name of the detectd object
 def get_labelname(labelmap, labels):
     num_labels = len(labelmap.item)
     labelnames = []
@@ -135,6 +141,7 @@ def get_labelname(labelmap, labels):
         assert found == True
     return labelnames
 
+# Boxing the detected object
 def show_object(frame, label_name, real_width, x_max, x_min, y_max, y_min):
 	img_width = x_max-x_min
 	distance = (focal_length * real_width)/img_width
@@ -155,6 +162,7 @@ def show_object(frame, label_name, real_width, x_max, x_min, y_max, y_min):
                 2)
 	return np.uint8(frame)
 
+# Continuous showing the frame from main loop
 def show_loop(the_q):
 
 	global cnt, fps, connect
@@ -200,10 +208,12 @@ def show_loop(the_q):
 		cv2.imshow('image_display', image)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			print("fuck")
+			os._exit()
 
 		cv2.waitKey(1)
 		continue
 
+# Detected the object and computing the distance
 def main():
 
 	#	define the multiprocess
