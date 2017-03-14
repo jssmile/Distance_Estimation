@@ -9,10 +9,10 @@ import pickle
 import socket
 import sys
 import Queue
+
 from caffe.proto import caffe_pb2
 from google.protobuf import text_format
 from Tkinter import *
-
 
 # Make sure that caffe is on the python path:
 caffe_root = '/home/jssmile/Distance_Estimation/caffe'  # this file is expected to be in {caffe_root}/examples
@@ -21,7 +21,7 @@ sys.path.insert(0, 'python')
 caffe.set_device(0)
 caffe.set_mode_gpu()
 
-# focal length
+# focal length of Logitech C310
 focal_length = 816.0
 
 # real width of obstacle(cm)
@@ -181,7 +181,11 @@ def show_loop(the_q):
 
 	while (True):
 		image = the_q.get()
-		if image is None:	break
+		if image is None:	
+			print("Client disconnect")
+			EXIT = True
+			pickle.dump(EXIT, open("exit_server.txt", "w"))
+			os.exit()
 		cnt += 1
 
 		if cnt == 1:
@@ -199,7 +203,7 @@ def show_loop(the_q):
                 (150,0,255),
                 2)
 		quality = cv2.getTrackbarPos('Quality', 'image_display')
-		encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality] # quality from 0 - 100, higher means bigger size
+		encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality] # quality from 0 - 100, higher means more clear
 		_, imgencode = cv2.imencode('.jpg', image, encode_param)
 		data_send = np.array(imgencode)
 		stringData_send = data_send.tostring()
@@ -231,72 +235,79 @@ def main():
 	while(True):
 		# Receive data from client
 		length = recvall(conn, 16)
-		stringData_recv = recvall(conn, int(length))
-		data_recv = np.fromstring(stringData_recv, dtype = 'uint8')
-		frame = cv2.imdecode(data_recv, 1)
+		if length is not None:
+			stringData_recv = recvall(conn, int(length))
+			data_recv = np.fromstring(stringData_recv, dtype = 'uint8')
+			frame = cv2.imdecode(data_recv, 1)
 
-		image = frame.astype(np.float32)/255
-		image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-		image = image[...,::-1]
-		transformed_image = transformer.preprocess('data', image)
-		net.blobs['data'].data[...] = transformed_image
+			image = frame.astype(np.float32)/255
+			image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+			image = image[...,::-1]
+			transformed_image = transformer.preprocess('data', image)
+			net.blobs['data'].data[...] = transformed_image
 
-		# Forward pass
-		detections = net.forward()['detection_out']
+			# Forward pass
+			detections = net.forward()['detection_out']
 
-		# Parse the output
-		det_label = detections[0,0,:,1]
-		det_conf  = detections[0,0,:,2]
-		det_xmin  = detections[0,0,:,3]
-		det_ymin  = detections[0,0,:,4]
-		det_xmax  = detections[0,0,:,5]
-		det_ymax  = detections[0,0,:,6]
+			# Parse the output
+			det_label = detections[0,0,:,1]
+			det_conf  = detections[0,0,:,2]
+			det_xmin  = detections[0,0,:,3]
+			det_ymin  = detections[0,0,:,4]
+			det_xmax  = detections[0,0,:,5]
+			det_ymax  = detections[0,0,:,6]
 
-		# Get detections with confidence higher than 0.6.
-		top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.6]
+			# Get detections with confidence higher than 0.6.
+			top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.6]
 
-		top_conf = det_conf[top_indices]
-		top_label_indices = det_label[top_indices].tolist()
-		top_labels = get_labelname(labelmap, top_label_indices)
-		top_xmin = det_xmin[top_indices]
-		top_ymin = det_ymin[top_indices]
-		top_xmax = det_xmax[top_indices]
-		top_ymax = det_ymax[top_indices]
+			top_conf = det_conf[top_indices]
+			top_label_indices = det_label[top_indices].tolist()
+			top_labels = get_labelname(labelmap, top_label_indices)
+			top_xmin = det_xmin[top_indices]
+			top_ymin = det_ymin[top_indices]
+			top_xmax = det_xmax[top_indices]
+			top_ymax = det_ymax[top_indices]
 		
-		for i in xrange(top_conf.shape[0]):
-			xmin = int(round(top_xmin[i] * image.shape[1]))
-			ymin = int(round(top_ymin[i] * image.shape[0]))
-			xmax = int(round(top_xmax[i] * image.shape[1]))
-			ymax = int(round(top_ymax[i] * image.shape[0]))
-			score = top_conf[i]
-			label = int(top_label_indices[i])
-			label_name = top_labels[i]
+			for i in xrange(top_conf.shape[0]):
+				xmin = int(round(top_xmin[i] * image.shape[1]))
+				ymin = int(round(top_ymin[i] * image.shape[0]))
+				xmax = int(round(top_xmax[i] * image.shape[1]))
+				ymax = int(round(top_ymax[i] * image.shape[0]))
+				score = top_conf[i]
+				label = int(top_label_indices[i])
+				label_name = top_labels[i]
 
-			if label_name == 'car':
-				show_object(frame, label_name, car_width, xmax, xmin, ymax, ymin)
+				if label_name == 'car':
+					show_object(frame, label_name, car_width, xmax, xmin, ymax, ymin)
 			
-			if label_name == 'person':
-				show_object(frame, label_name, person_width, xmax, xmin, ymax, ymin)
+				if label_name == 'person':
+					show_object(frame, label_name, person_width, xmax, xmin, ymax, ymin)
 
-			if label_name == 'motorbike':
-				show_object(frame, label_name, motorbike_width, xmax, xmin, ymax, ymin)			
+				if label_name == 'motorbike':
+					show_object(frame, label_name, motorbike_width, xmax, xmin, ymax, ymin)			
 
-			if label_name == 'bus':
-				show_object(frame, label_name, bus_width, xmax, xmin, ymax, ymin)
+				if label_name == 'bus':
+					show_object(frame, label_name, bus_width, xmax, xmin, ymax, ymin)
 
-			else :
-				cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (150,0,255), 2)
-				cv2.putText(frame,
-                    label_name,
-                    (xmin, ymin),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    1,
-                    (150,0,255),
-                    2)
-		Leaving = pickle.load(open("exit_server.txt", "r"))
-		if Leaving:
-			os.exit()
-		the_q.put(frame)
+				else :
+					cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (150,0,255), 2)
+					cv2.putText(frame,
+            	        label_name,
+                	    (xmin, ymin),
+                	    cv2.FONT_HERSHEY_SIMPLEX,
+                	    1,
+                    	(150,0,255),
+                    	2)
+			Leaving = pickle.load(open("exit_server.txt", "r"))
+			if Leaving:
+				os.exit()
+			the_q.put(frame)
+		else:
+			print("Client disconnect!")
+			the_q.put(None)
+			Leaving = pickle.load(open("exit_server.txt", "r"))
+			if Leaving:
+				os.exit()
 
 if __name__ == '__main__':
 	conn, addr = connection()
