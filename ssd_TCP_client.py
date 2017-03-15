@@ -1,7 +1,20 @@
-from Tkinter import *
-import socket
+'''
+ * Copyright 2017 Distance Measurement, EE, NCKU. All rights reserved. 
+ * File : ssd_TCP_client.py 
+ * User : Syuan Jhao 
+ * Date : 2017/3/15 
+ * Version : 1.0
+ * OS : Ubuntu Mate 16.04 LTS
+ * Tools : Python 2.7 + Opencv 3.2.0
+'''
+
+# Import the necessary library 
 import cv2
 import numpy
+import os
+import socket
+
+from Tkinter import *
 
 # TCP ip and port
 TCP_IP = None
@@ -57,11 +70,13 @@ def recvall(sock, count):
         count -= len(newbuf)
     return buf
 
+# Socket Connection Setting
 def connection():
 	sock = socket.socket()
 	sock.connect((TCP_IP, TCP_PORT))
 	return sock
 
+# Send the camera frame to server and receive the processed frame
 def main():
 	while (True):
 		_, frame = capture.read()

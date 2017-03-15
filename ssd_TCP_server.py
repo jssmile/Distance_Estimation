@@ -1,3 +1,14 @@
+'''
+ * Copyright 2017 Distance Measurement, EE, NCKU. All rights reserved. 
+ * File : ssd_TCP_server.py 
+ * User : Syuan Jhao 
+ * Date : 2017/3/15 
+ * Version : 1.0
+ * OS : Ubuntu Mate 16.04 LTS
+ * Tools : Python 2.7 + Caffe + CUDA 8.0 + cuDNN v5.1 + Opencv 3.2.0
+'''
+
+# Import the necessary library 
 import caffe
 import cv2
 import datetime
@@ -224,10 +235,10 @@ def show_loop(the_q):
 
 		cv2.waitKey(1)
 
-# Detected the object and computing the distance
+# Detect the object and computing the distance
 def main():
 
-	#	define the multiprocess
+	# define the multiprocess
 	the_q = multiprocessing.Queue()
 	show_process = multiprocessing.Process(target=show_loop,args=(the_q, ))
 	show_process.start()
@@ -236,10 +247,12 @@ def main():
 		# Receive data from client
 		length = recvall(conn, 16)
 		if length is not None:
+			# Decode the received data
 			stringData_recv = recvall(conn, int(length))
 			data_recv = np.fromstring(stringData_recv, dtype = 'uint8')
 			frame = cv2.imdecode(data_recv, 1)
 
+			# Normalize the frame data
 			image = frame.astype(np.float32)/255
 			image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 			image = image[...,::-1]
@@ -259,7 +272,6 @@ def main():
 
 			# Get detections with confidence higher than 0.6.
 			top_indices = [i for i, conf in enumerate(det_conf) if conf >= 0.6]
-
 			top_conf = det_conf[top_indices]
 			top_label_indices = det_label[top_indices].tolist()
 			top_labels = get_labelname(labelmap, top_label_indices)
@@ -269,6 +281,7 @@ def main():
 			top_ymax = det_ymax[top_indices]
 		
 			for i in xrange(top_conf.shape[0]):
+				# Get the coordinate of the detected object
 				xmin = int(round(top_xmin[i] * image.shape[1]))
 				ymin = int(round(top_ymin[i] * image.shape[0]))
 				xmax = int(round(top_xmax[i] * image.shape[1]))
@@ -277,6 +290,7 @@ def main():
 				label = int(top_label_indices[i])
 				label_name = top_labels[i]
 
+				# Classify the object and compute the distance
 				if label_name == 'car':
 					show_object(frame, label_name, car_width, xmax, xmin, ymax, ymin)
 			
@@ -298,10 +312,14 @@ def main():
                 	    1,
                     	(150,0,255),
                     	2)
+
+			# Send the processed frame to the child-process
+			the_q.put(frame)
+
+			# Check if we exit the program
 			Leaving = pickle.load(open("exit_server.txt", "r"))
 			if Leaving:
 				os.exit()
-			the_q.put(frame)
 		else:
 			print("Client disconnect!")
 			the_q.put(None)
