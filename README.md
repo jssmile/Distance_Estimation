@@ -42,16 +42,10 @@ $ python ssd_TCP_client.py
 ## Folder Introduction 
 
 ### Base_implement
-- There are some basic implements for opencv. Such as load the model, save the video, and socket...etc.
+- There are some basic implements for opencv. Such as **Calibrate the camera**, **Haar-feature for face or car detection**, **save video**, and **socket programing**...etc.
 
 ### caffe
 - It's a deep-learning library. I use it for object detection and recognizing. Single shot multibox detector is the most popular implement for computer vision. Due to its high accuracy and speed, decide to use it for my project!
-
-### calibrate
-- It's a calibrate example and where to store the output. This code can generate out intrinsic and extrinsic parameter of the camera.
-
-### car capture
-- It's the implement for detecting cars with haar-feature.
 
 
 ```
