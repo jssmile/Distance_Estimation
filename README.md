@@ -37,6 +37,8 @@ $ python ssd_TCP_client.py
 # Then enter the IP and port same as server
 ```
 
+
+
 ## Folder Introduction 
 
 ### Base_implement
@@ -50,3 +52,14 @@ $ python ssd_TCP_client.py
 
 ### car capture
 - It's the implement for detecting cars with haar-feature.
+
+
+```
+In the end. Thanks very much to Mr. Wei Liu for his great ssd tutorial and resources.
+@inproceedings{liu2016ssd,
+  title = {{SSD}: Single Shot MultiBox Detector},
+  author = {Liu, Wei and Anguelov, Dragomir and Erhan, Dumitru and Szegedy, Christian and Reed, Scott and Fu, Cheng-Yang and Berg, Alexander C.},
+  booktitle = {ECCV},
+  year = {2016}
+}
+```
