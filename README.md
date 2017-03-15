@@ -1,5 +1,4 @@
 # Distance_Estimation
-***
 Opencv 3.2.0 project with python 2.7 under Ubuntu Mate 16.04 !  
 
 My main goal is to estimate the distance from object(vehicles) to ths monocular camera.  
