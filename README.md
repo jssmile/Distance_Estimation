@@ -20,7 +20,7 @@ If you only want to use for local machine. please prepare the environment and a 
 ($ means that command in the terminal)
 
 ```
-Assume you already enter the depository
+# Assume you already enter the depository
 $ python ssd_local.py
 ```
 #### For remote version
@@ -29,12 +29,12 @@ $ python ssd_local.py
 * under the server
 ```
 $ python ssd_TCP_server.py
-Then enter the IP(Static) and port
+# Then enter the IP(Static) and port
 ```
 * under the client
 ```
 $ python ssd_TCP_client.py
-Then enter the IP and port same as server
+# Then enter the IP and port same as server
 ```
 
 ## Folder Introduction 
