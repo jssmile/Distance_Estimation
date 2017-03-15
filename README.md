@@ -20,23 +20,23 @@ Folowing the [tutorial](https://paper.dropbox.com/doc/Single-Shot-Mutilbox-Detec
 If you only want to use for local machine. please prepare the environment and a webcam connected to the computer.
 ($ means that command in the terminal)
 
-
+```
 Assume you already enter the depository
-> $ python ssd_local.py
-
+$ python ssd_local.py
+```
 #### For remote version
 ![architecture](/socket.png)
 
 * under the server
-> $ python ssd_TCP_server.py
-
-enter the IP(Static) and port
-
+```
+$ python ssd_TCP_server.py
+Then enter the IP(Static) and port
+```
 * under the client
-> $ python ssd_TCP_client.py
-
-enter the IP and port same as server
-
+```
+$ python ssd_TCP_client.py
+Then enter the IP and port same as server
+```
 
 ## Folder Introduction 
 
