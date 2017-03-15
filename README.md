@@ -21,8 +21,8 @@ If you only want to use for local machine. please prepare the environment and a 
 ($ means that command in the terminal)
 
 
-> Assume you already enter the depository
- $ python ssd_local.py
+Assume you already enter the depository
+> $ python ssd_local.py
 
 #### For remote version
 ![architecture](/socket.png)
@@ -30,24 +30,24 @@ If you only want to use for local machine. please prepare the environment and a 
 * under the server
 > $ python ssd_TCP_server.py
 
-> enter the IP(Static) and port
+enter the IP(Static) and port
 
 * under the client
 > $ python ssd_TCP_client.py
 
-> enter the IP and port same as server
+enter the IP and port same as server
 
 
 ## Folder Introduction 
 
 ### Base_implement
-There are some basic implements for opencv. Such as load the model, save the video, and socket...etc.
+- There are some basic implements for opencv. Such as load the model, save the video, and socket...etc.
 
 ### caffe
-It's a deep-learning library. I use it for object detection and recognizing. Single shot multibox detector is the most popular implement for computer vision. Due to its high accuracy and speed, decide to use it for my project!
+- It's a deep-learning library. I use it for object detection and recognizing. Single shot multibox detector is the most popular implement for computer vision. Due to its high accuracy and speed, decide to use it for my project!
 
 ### calibrate
-It's a calibrate example and where to store the output. This code can generate out intrinsic and extrinsic parameter of the camera.
+- It's a calibrate example and where to store the output. This code can generate out intrinsic and extrinsic parameter of the camera.
 
 ### car capture
-It's the implement for detecting cars with haar-feature.
+- It's the implement for detecting cars with haar-feature.
