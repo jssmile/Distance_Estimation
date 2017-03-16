@@ -1,3 +1,15 @@
+'''
+ * Copyright 2017 Distance Measurement, EE, NCKU. All rights reserved. 
+ * File : client.py 
+ * User : Syuan Jhao 
+ * Date : 2017/3/16 
+ * Version : 1.0
+ * OS : Ubuntu Mate 16.04 LTS
+ * Tools : Python 2.7 + Opencv 3.2.0
+ * Introduction : After connection with server, it can transfer the camera frames and receive
+ * 				  the processed frame then displaying
+'''
+
 import socket
 import cv2
 import numpy
