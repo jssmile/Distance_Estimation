@@ -1,5 +1,15 @@
-# USAGE
-# python distance_to_camera.py
+'''
+ * Copyright 2017 Distance Measurement, EE, NCKU. All rights reserved. 
+ * File : Distance2Camera.py 
+ * User : Syuan Jhao 
+ * Date : 2017/3/16 
+ * Version : 1.0
+ * OS : Ubuntu Mate 16.04 LTS
+ * Tools : Python 2.7 + Opencv 3.2.0
+ * Introduction : Compute the disatance between the A4 paper and the logitech C310 webcam.
+ * Guide : if you want to load the image just type $ python Distance2Camera.py image /path/to/image
+           elseif want to use webcam just type $ python Distance2Camera.py video
+'''
 
 # import the necessary packages
 import numpy as np
