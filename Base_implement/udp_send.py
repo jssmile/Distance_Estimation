@@ -1,3 +1,14 @@
+'''
+ * Copyright 2017 Distance Measurement, EE, NCKU. All rights reserved. 
+ * File : udp_send.py 
+ * User : Syuan Jhao 
+ * Date : 2017/3/16 
+ * Version : 1.0
+ * OS : Ubuntu Mate 16.04 LTS
+ * Tools : Python 2.7 + Opencv 3.2.0
+ * Introduction : sned the camera frame through UDP protocol.
+'''
+
 import numpy as np
 import cv2
 import socket
