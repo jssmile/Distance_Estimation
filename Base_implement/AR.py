@@ -1,15 +1,21 @@
+'''
+ * Copyright 2017 Distance Measurement, EE, NCKU. All rights reserved. 
+ * File : AR.py 
+ * User : Syuan Jhao 
+ * Date : 2017/3/16 
+ * Version : 1.0
+ * OS : Ubuntu Mate 16.04 LTS
+ * Tools : Python 2.7 + Opencv 3.2.0
+ * Introduction : Build a virtual pyramid on the chessboard
+'''
+
 import cv2
 import numpy as np
 import glob
 
 # Load previously saved data
-<<<<<<< HEAD
 with np.load('out.npz') as X:
     dist, mtx, _, _ , _= [X[i] for i in ('dist', 'mtx', 'ret', 'rvecs','tvecs')]
-=======
-with np.load('pose/out.npz') as X:
-    dist, mtx, _, rvecs , tvecs= [X[i] for i in ('dist', 'mtx', 'ret', 'rvecs','tvecs')]
->>>>>>> 170983ade639e49390716b1baf6c7cbdd0b1ccff
 
 def draw(img, corners, imgpts):
     corner = tuple(corners[0].ravel())
@@ -46,8 +52,4 @@ for fname in glob.glob('calibrate/*.jpg'):
         cv2.imshow('img',img)
         cv2.imwrite('AR.jpg', img)
         cv2.waitKey(500)
-<<<<<<< HEAD
-=======
-
->>>>>>> 170983ade639e49390716b1baf6c7cbdd0b1ccff
 cv2.destroyAllWindows()
