@@ -1,8 +1,18 @@
-
+'''
+ * Copyright 2017 Distance Measurement, EE, NCKU. All rights reserved. 
+ * File : thread.py 
+ * User : Syuan Jhao 
+ * Date : 2017/3/16 
+ * Version : 1.0
+ * OS : Ubuntu Mate 16.04 LTS
+ * Tools : Python 2.7 + Opencv 3.2.0
+ * Introduction : Create two threads for capturing frames and displaying.
+'''
 import multiprocessing
 import cv2
 import sys
  
+# Capture the camera
 def cam_loop(the_q):
 	cap = cv2.VideoCapture(0)
  
@@ -10,7 +20,8 @@ def cam_loop(the_q):
 		_ , img = cap.read()
 		if img is not None:
 			the_q.put(img)
- 
+
+# Diaplay the frame
 def show_loop(the_q):
 	cv2.namedWindow('pepe')
  
