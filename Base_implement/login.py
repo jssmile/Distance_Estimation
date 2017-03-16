@@ -1,3 +1,14 @@
+'''
+ * Copyright 2017 Distance Measurement, EE, NCKU. All rights reserved. 
+ * File : login.py 
+ * User : Syuan Jhao 
+ * Date : 2017/3/16 
+ * Version : 1.0
+ * OS : Ubuntu Mate 16.04 LTS
+ * Tools : Python 2.7 + Opencv 3.2.0
+ * Introduction : Create the login graphic interface
+'''
+
 from Tkinter import *
 class App:
   def __init__(self, master):
