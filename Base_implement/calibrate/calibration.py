@@ -1,3 +1,14 @@
+'''
+ * Copyright 2017 Distance Measurement, EE, NCKU. All rights reserved. 
+ * File : calibration.py 
+ * User : Syuan Jhao 
+ * Date : 2017/3/16 
+ * Version : 1.0
+ * OS : Ubuntu Mate 16.04 LTS
+ * Tools : Python 2.7 + Opencv 3.2.0
+ * Introduction : Calibrate the picture and save the output.
+'''
+
 import numpy as np
 import cv2
 import glob
@@ -33,9 +44,8 @@ for fname in images:
         ret, mtx, dist, rvecs,tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
         print(mtx, "\n")
         print(dist, "\n")
-        np.savez("pose/calibrate_out", ret=ret, mtx=mtx, dist=dist, rvecs=rvecs, tvecs=tvecs)
         # Draw and display the corners
         cv2.imshow('img', img)
         cv2.waitKey(500)
-np.savez("pose/out", ret=ret, mtx=mtx, dist=dist, rvecs=rvecs, tvecs=tvecs)
+np.savez("parameter_output/pose/out", ret=ret, mtx=mtx, dist=dist, rvecs=rvecs, tvecs=tvecs)
 cv2.destroyAllWindows()
