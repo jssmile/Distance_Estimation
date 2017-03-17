@@ -168,11 +168,11 @@ while (True):
 
     cv2.imshow('frame', frame)
 
-    # count 60 frames and calculated the frames per seconds(fps) 
-    if cnt == 60:
+    # count 10 frames and calculated the frames per seconds(fps) 
+    if cnt == 10:
         end = datetime.datetime.now()
         period = end - start
-        fps = 60 / (period.total_seconds())
+        fps = 10 / (period.total_seconds())
         cv2.putText(frame,
                     str(fps),
                     (0, 30),
