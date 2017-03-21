@@ -177,13 +177,22 @@ def load_model():
 def show_loop(the_q):
 
 	global EXIT
-	# define the codec
-	fourcc = cv2.VideoWriter_fourcc(*'XVID')
+	lst = (cv2.__version__).split('.')
+	major_name = int(lst[0])
+	if major_name > 2:
+		#define the codec
+		fourcc = cv2.VideoWriter_fourcc(*'XVID')
+		# define the frame size to full screen
+		cv2.namedWindow('image_display', cv2.WND_PROP_FULLSCREEN)
+		cv2.setWindowProperty('image_display', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+	else:
+		#define the codec
+		fourcc = cv2.cv.CV_FOURCC(*'XVID')
+		# define the frame size to full screen
+		cv2.namedWindow('image_display', cv2.WND_PROP_FULLSCREEN)
+		cv2.setWindowProperty('image_display', cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_FULLSCREEN)
+
 	out = cv2.VideoWriter('test.avi', fourcc, 15, (640, 480))
-	
-	# define the frame size to full screen
-	cv2.namedWindow('image_display', cv2.WND_PROP_FULLSCREEN)
-	cv2.setWindowProperty('image_display', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 	cv2.createTrackbar('Quality', 'image_display', 50, 100, nothing)
 
 	# frames counter

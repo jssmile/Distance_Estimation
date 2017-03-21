@@ -15,8 +15,16 @@ import datetime
 cap = cv2.VideoCapture(0)
 cnt = 0
 fps = 0
-cv2.namedWindow("frame", cv2.WND_PROP_FULLSCREEN)
-cv2.setWindowProperty("frame", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+lst = (cv2.__version__).split('.')
+major_name = int(lst[0])
+if major_name > 2:
+    # define the frame size to full screen
+    cv2.namedWindow('frame', cv2.WND_PROP_FULLSCREEN)
+    cv2.setWindowProperty('frame', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+else:
+    # define the frame size to full screen
+    cv2.namedWindow('frame', cv2.WND_PROP_FULLSCREEN)
+    cv2.setWindowProperty('frame', cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_FULLSCREEN)
 
 while(True):
     # Capture frame-by-frame
