@@ -39,6 +39,13 @@ while(True):
                     1,
                     (150,0,255),
                     2)
+    cv2.putText(frame,
+                "x",
+                (320, 240),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (150,0,255),
+                2)
     # Display the resulting frame
     cv2.imshow('frame',frame)
 
