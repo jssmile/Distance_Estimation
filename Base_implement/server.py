@@ -31,27 +31,27 @@ TCP_PORT = 5001
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((TCP_IP, TCP_PORT))
 server.listen(True)
+print("listening")
 conn, addr = server.accept()
 
 while (True):
     # Receive the data
-	length = recvall(conn,16)
-	stringData = recvall(conn, int(length))
-	data = numpy.fromstring(stringData, dtype='uint8')
+    length = recvall(conn,16)
+    stringData = recvall(conn, int(length))
+    data = numpy.fromstring(stringData, dtype='uint8')
+    decimg=cv2.imdecode(data,1)
     
 	# Encode the frame and send to server
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 30]
-    _, imgencode = cv2.imencode('.jpg', frame, encode_param)
+    _, imgencode = cv2.imencode('.jpg', decimg, encode_param)
     data_send = numpy.array(imgencode)
     stringData_send = data_send.tostring()
 
     conn.send(str(len(stringData_send)).ljust(16));
     conn.send(stringData_send);
 
-
-    decimg=cv2.imdecode(data,1)
-	cv2.imshow('SERVER', decimg)
-	cv2.waitKey(1)
+    cv2.imshow('SERVER', decimg)
+    cv2.waitKey(1)
 
 server.close()
 cv2.destroyAllWindows() 
