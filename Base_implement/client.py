@@ -15,7 +15,7 @@ import cv2
 import numpy
 
 # IP and port number(must be same as server)
-TCP_IP = '140.116.164.8'
+TCP_IP = '140.116.164.7'
 TCP_PORT = 5001
 
 # Connect
@@ -23,7 +23,7 @@ sock = socket.socket()
 sock.connect((TCP_IP, TCP_PORT))
 
 # Start webcam
-capture = cv2.VideoCapture(0)
+capture = cv2.VideoCapture(1)
 
 # Receive the image data
 def recvall(sock, count):
@@ -36,25 +36,26 @@ def recvall(sock, count):
     return buf
 
 while (True):
-	_, frame = capture.read()
+	ret, frame = capture.read()
 
 	# Encode the frame and send to server
-	encode_param=[int(cv2.IMWRITE_JPEG_QUALITY),30]
+	encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 30]
 	_, imgencode = cv2.imencode('.jpg', frame, encode_param)
 	data_send = numpy.array(imgencode)
 	stringData_send = data_send.tostring()
 
 	sock.send(str(len(stringData_send)).ljust(16));
 	sock.send(stringData_send);
-
-	# Receive the image data and decode
 	length = recvall(sock,16)
 	stringData_recv = recvall(sock, int(length))
 	data_recv = numpy.fromstring(stringData_recv, dtype='uint8')
 
 	frame_recv = cv2.imdecode(data_recv, 1)
+	
 	cv2.imshow("ssd", frame_recv)
 	cv2.waitKey(1)
+	if cv2.waitKey(1) & 0xFF == ord('q'):
+		break
 
 sock.close()
 cv2.destroyAllWindows()

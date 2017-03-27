@@ -39,7 +39,17 @@ while (True):
 	stringData = recvall(conn, int(length))
 	data = numpy.fromstring(stringData, dtype='uint8')
     
-	decimg=cv2.imdecode(data,1)
+	# Encode the frame and send to server
+    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 30]
+    _, imgencode = cv2.imencode('.jpg', frame, encode_param)
+    data_send = numpy.array(imgencode)
+    stringData_send = data_send.tostring()
+
+    conn.send(str(len(stringData_send)).ljust(16));
+    conn.send(stringData_send);
+
+
+    decimg=cv2.imdecode(data,1)
 	cv2.imshow('SERVER', decimg)
 	cv2.waitKey(1)
 
