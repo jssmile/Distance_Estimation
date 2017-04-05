@@ -83,25 +83,25 @@ def main():
         if ret is None:
             continue
 
-		quality = cv2.getTrackbarPos('Quality', 'ssd')
-		encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
-		_, imgencode = cv2.imencode('.jpg', frame, encode_param)
-		data_send = numpy.array(imgencode)
-		stringData_send = data_send.tostring()
+        quality = cv2.getTrackbarPos('Quality', 'ssd')
+        encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
+        _, imgencode = cv2.imencode('.jpg', frame, encode_param)
+        data_send = numpy.array(imgencode)
+        stringData_send = data_send.tostring()
 
-		sock.send(str(len(stringData_send)).ljust(16));
-		sock.send(stringData_send);
+        sock.send(str(len(stringData_send)).ljust(16));
+        sock.send(stringData_send);
 
-		length = recvall(sock,16)
-		stringData_recv = recvall(sock, int(length))
-		data_recv = numpy.fromstring(stringData_recv, dtype='uint8')
+        length = recvall(sock,16)
+        stringData_recv = recvall(sock, int(length))
+        data_recv = numpy.fromstring(stringData_recv, dtype='uint8')
 
-		frame_recv = cv2.imdecode(data_recv, 1)
+        frame_recv = cv2.imdecode(data_recv, 1)
 	
-		cv2.imshow("ssd", frame_recv)
-		cv2.waitKey(1)
-		if cv2.waitKey(1) & 0xFF == ord('q'):
-			os.exit()
+        cv2.imshow("ssd", frame_recv)
+        cv2.waitKey(1)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            os.exit()
 
 
 if __name__ == '__main__':
