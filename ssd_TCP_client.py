@@ -78,8 +78,8 @@ def connection():
 
 # Send the camera frame to server and receive the processed frame
 def main():
-	while (True):
-		ret, frame = capture.read()
+    while (True):
+        ret, frame = capture.read()
         if ret is None:
             continue
 
