@@ -1,86 +1,30 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import cv2
-import datetime
-
-plt.rcParams['figure.figsize'] = (10, 10)
-plt.rcParams['image.interpolation'] = 'nearest'
-plt.rcParams['image.cmap'] = 'gray'
-
-# Make sure that caffe is on the python path:
-caffe_root = '/home/jssmile/Distance_Estimation/caffe'  # this file is expected to be in {caffe_root}/examples
-import os
-os.chdir(caffe_root)
-import sys
-sys.path.insert(0, 'python')
-
-import caffe
-caffe.set_device(0)
-caffe.set_mode_gpu()
-
-from google.protobuf import text_format
-from caffe.proto import caffe_pb2
-
-def get_labelname(labelmap, labels):
-    num_labels = len(labelmap.item)
-    labelnames = []
-    if type(labels) is not list:
-        labels = [labels]
-    for label in labels:
-        found = False
-        for i in xrange(0, num_labels):
-            if label == labelmap.item[i].label:
-                found = True
-                labelnames.append(labelmap.item[i].display_name)
-                break
-        assert found == True
-    return labelnames
-
-# focal length
-focal_length = 816
-
-# car's real width(cm)
-car_width = 3.5
-
-# image size
-width = 640
-height = 480
-scale = 2
+# Import the necessary library 
+from functions import *
 
 # frames counter
 cnt = 0
-counted = False
+fps = 0
 
 # Open the webcam
 cap = cv2.VideoCapture(0)
 
-#define the codec
-fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter('test.avi', fourcc, 9.5, (640, 480))
+if len(sys.argv) < 2:
+    mode = 'w'
+else:
+    mode = sys.argv[1]
 
-# load PASCAL VOC labels
-labelmap_file = 'data/VOC0712/labelmap_voc.prototxt'
-file = open(labelmap_file, 'r')
-labelmap = caffe_pb2.LabelMap()
-text_format.Merge(str(file.read()), labelmap)
+lst = (cv2.__version__).split('.')
+major_name = int(lst[0])
+if major_name > 2:
+    #define the codec
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+else:
+    #define the codec
+    fourcc = cv2.cv.CV_FOURCC(*'XVID')
+filename = check_filename()
+out = cv2.VideoWriter(filename, fourcc, 9.5, (640, 480))
 
-model_def = 'models/VGGNet/VOC0712/SSD_300x300/deploy.prototxt'
-model_weights = 'models/VGGNet/VOC0712/SSD_300x300/VGG_VOC0712_SSD_300x300_iter_120000.caffemodel'
-
-net = caffe.Net(model_def,      # defines the structure of the model
-                model_weights,  # contains the trained weights
-                caffe.TEST)     # use test mode (e.g., don't perform dropout)
-
-# input preprocessing: 'data' is the name of the input blob == net.inputs[0]
-transformer = caffe.io.Transformer({'data': net.blobs['data'].data.shape})
-transformer.set_transpose('data', (2, 0, 1))
-transformer.set_mean('data', np.array([104,117,123])) # mean pixel
-transformer.set_raw_scale('data', 255)  # the reference model operates on images in [0,255] range instead of [0,1]
-transformer.set_channel_swap('data', (2,1,0))  # the reference model has channels in BGR order instead of RGB
-
-# set net to batch size of 1
-image_resize = 300
-net.blobs['data'].reshape(1,3,image_resize,image_resize)
+net, transformer, labelmap = load_model()
 
 while (True):
     _, frame = cap.read()
@@ -88,6 +32,20 @@ while (True):
     
     if cnt == 1:
         start = datetime.datetime.now()
+
+    # count 10 frames and calculated the frames per seconds(fps) 
+    if cnt == 10:
+        end = datetime.datetime.now()
+        period = end - start
+        fps = 10 / (period.total_seconds())
+        cnt = 0
+    cv2.putText(frame,
+                    "fps : " + str(fps),
+                    (0, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (150,0,255),
+                    2)
 
     image = frame.astype(np.float32)/255
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -116,7 +74,6 @@ while (True):
     top_ymin = det_ymin[top_indices]
     top_xmax = det_xmax[top_indices]
     top_ymax = det_ymax[top_indices]
-    colors = plt.cm.hsv(np.linspace(0, 1, 21)).tolist()
 
     for i in xrange(top_conf.shape[0]):
         xmin = int(round(top_xmin[i] * image.shape[1]))
@@ -127,61 +84,50 @@ while (True):
         label = int(top_label_indices[i])
         label_name = top_labels[i]
 
-        if label_name == 'car':
-            img_car_width = xmax-xmin
-            distance = (focal_length * car_width)/img_car_width
-            #color = colors[label].astype(np.float8)*255
-            cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (150,0,255), 2)
-            cv2.putText(frame,
-                        label_name,
-                        (xmin, ymin),
-                        cv2.FONT_HERSHEY_SIMPLEX,
+        if mode =='w':
+            if label_name == 'car':
+                show_object(frame, label_name, car_width, xmax, xmin, ymax, ymin)
+            if label_name == 'person':
+                show_object(frame, label_name, person_width, xmax, xmin, ymax, ymin)
+
+            if label_name == 'motorbike':
+                show_object(frame, label_name, motorbike_width, xmax, xmin, ymax, ymin)         
+
+            if label_name == 'bus':
+                show_object(frame, label_name, bus_width, xmax, xmin, ymax, ymin)
+
+            else :
+                cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (150,0,255), 2)
+                cv2.putText(frame,
+                            label_name,
+                            (xmin, ymin-5),
+                            font,
+                            1,
+                            
+                            (150,0,255),
+                            2)
+        elif mode =='p':
+                    C = 94
+                    y = 480-ymax
+                    theta_i = math.degrees(math.atan((ymax-240)/focal_length))
+                    D = C * math.tan(math.radians(90-theta_i))
+                    cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (150,0,255), 2)
+                    cv2.putText(frame,
+                        "%.2fcm" % D,
+                        (xmax, ymax),
+                        font,
                         1,
                         (150,0,255),
                         2)
-            cv2.putText(frame,
-                        "%.2fcm" % distance,
-                        (xmax, ymax),
-                        cv2.FONT_HERSHEY_SIMPLEX,
+                    cv2.putText(frame,
+                        label_name,
+                        (xmin, ymin),
+                        font,
                         1,
-                        (0, 255, 0),
+                        (150,0,255),
                         2)
-        else :
-            color = colors[label]
-            cv2.rectangle(frame, (xmin,ymin), (xmax,ymax), (150,0,255), 2)
-            cv2.putText(frame,
-                    label_name,
-                    (xmin, ymin),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    1,
-                    (150,0,255),
-                    2)
-
-    if counted:
-        cv2.putText(frame,
-                    "fps : " + str(fps),
-                    (0, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    1,
-                    (150,0,255),
-                    2)
 
     cv2.imshow('frame', frame)
-
-    # count 10 frames and calculated the frames per seconds(fps) 
-    if cnt == 10:
-        end = datetime.datetime.now()
-        period = end - start
-        fps = 10 / (period.total_seconds())
-        cv2.putText(frame,
-                    str(fps),
-                    (0, 30),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    1,
-                    (150,0,255),
-                    2)
-        cnt = 0
-        counted = True
     
     # Save the images as a video file
     out.write(np.uint8(frame))
