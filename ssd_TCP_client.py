@@ -79,7 +79,9 @@ def connection():
 # Send the camera frame to server and receive the processed frame
 def main():
 	while (True):
-		_, frame = capture.read()
+		ret, frame = capture.read()
+        if ret is None:
+            continue
 
 		quality = cv2.getTrackbarPos('Quality', 'ssd')
 		encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
