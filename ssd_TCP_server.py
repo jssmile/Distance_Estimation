@@ -11,6 +11,44 @@
 # Import the necessary library 
 from functions import *
 
+# pass function
+def nothing():
+	pass
+
+# Login GUI
+class Login:
+  def __init__(self, master):
+    frame = Frame(master)
+    frame.pack()
+
+    self.label_1 = Label(frame, text="IP_address")
+    self.label_2 = Label(frame, text="Port")
+    self.label_1.grid(row=0, sticky=E)
+    self.label_2.grid(row=1, sticky=E)
+
+    self.entry_1 = Entry(frame)
+    self.entry_1.insert(END, '140.116.164.8')
+    self.entry_2 = Entry(frame)
+    self.entry_2.insert(END, '5001')
+    self.entry_1.grid(row=0, column=1)
+    self.entry_2.grid(row=1, column=1)
+
+    self.Connect_btn = Button(frame, text ="Connect", command = self.write_slogan)
+    self.Connect_btn.grid(row=3, column=0)
+    self.Cancel_btn = Button(frame, text="Exit", fg="red", command=quit)
+    self.Cancel_btn.grid(row=3, column = 1)
+  
+  def write_slogan(self):
+    global TCP_IP, TCP_PORT
+    TCP_IP = self.entry_1.get()
+    TCP_PORT = int(self.entry_2.get())
+    print(TCP_IP, TCP_PORT)
+    root.destroy()
+root = Tk()
+root.wm_title("Server")
+app = Login(root)
+root.mainloop()
+
 # flag for terminating
 EXIT = False
 pickle.dump(EXIT, open("exit_server.txt", "w"))
@@ -34,7 +72,8 @@ def show_loop(the_q):
 		cv2.namedWindow('image_display', cv2.WND_PROP_FULLSCREEN)
 		cv2.setWindowProperty('image_display', cv2.WND_PROP_FULLSCREEN, cv2.cv.CV_WINDOW_FULLSCREEN)
 
-	out = cv2.VideoWriter('test.avi', fourcc, 15, (640, 480))
+	name = check_filename()
+	out = cv2.VideoWriter(name, fourcc, 15, (640, 480))
 	cv2.createTrackbar('Quality', 'image_display', 50, 100, nothing)
 
 	# frames counter
@@ -74,7 +113,7 @@ def show_loop(the_q):
 		conn.send(stringData_send)
 		
 		# Save the images as a video file
-		out.write(np.uint8(image))
+		out.write(image)
 		cv2.imshow('image_display', image)
 
 		# if press 'q' then exit the program
@@ -199,11 +238,18 @@ def main():
 			if Leaving:
 				sys.exit(0)
 		else:
+			'''
 			print("Client disconnect!")
 			the_q.put(None)
 			Leaving = pickle.load(open("exit_server.txt", "r"))
 			if Leaving:
 				sys.exit(0)
+			'''
+			# Release the buffer
+			the_q.put(None)
+			show_process.join()
+			os.execv(sys.executable, [sys.executable] +sys.argv)
+
 
 if __name__ == '__main__':
 	conn, addr = connection(TCP_IP, TCP_PORT)
@@ -213,6 +259,4 @@ if __name__ == '__main__':
 	# Release the buffer
 	the_q.put(None)
 	show_process.join()
-	server.close()
-	out.release()
 	cv2.DestroyAllWindows()
